@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "whatsapp-ui",
-    "slug": "whatsapp-ui",
+    "name": "whatsapp 2.0",
+    "slug": "whatsappclone",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",

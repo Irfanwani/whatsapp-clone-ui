@@ -1,14 +1,33 @@
 import React, { useState } from "react";
 import { View, Dimensions } from "react-native";
-import { TextInput, Button, Colors, Avatar, FAB } from "react-native-paper";
+import {
+	TextInput,
+	Button,
+	Colors,
+	Avatar,
+	FAB,
+	HelperText,
+} from "react-native-paper";
 
 import RBSheet from "react-native-raw-bottom-sheet";
 import * as ImagePicker from "expo-image-picker";
+
+import { login } from "./store/actions/auth";
+import { useDispatch, useSelector } from "react-redux";
 
 import styles from "./styles";
 
 const Login = (props) => {
 	const [img, setImg] = useState("");
+	const [contact, setContact] = useState("");
+	const [name, setName] = useState("");
+
+	const { error, loading } = useSelector((state) => ({
+		error: state.errorReducer.error,
+		loading: state.errorReducer.loading,
+	}));
+
+	const dispatch = useDispatch();
 
 	const getPicture = async () => {
 		let { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -49,6 +68,14 @@ const Login = (props) => {
 		rbsheet.close();
 	};
 
+	const submit = () => {
+		dispatch(
+			login({ dp: img, name, contact }, () => {
+				props.navigation.navigate("Otp");
+			})
+		);
+	};
+
 	return (
 		<View style={[styles.view, { marginHorizontal: 10 }]}>
 			<Avatar.Icon
@@ -84,20 +111,37 @@ const Login = (props) => {
 
 			<TextInput
 				left={<TextInput.Icon name="phone" />}
-				label="Enter your number..."
-				keyboardType="number-pad"
+				label="Enter your number (with country code)..."
+				keyboardType="phone-pad"
+				maxLength={15}
+				value={contact}
+				onChangeText={(con) => setContact(con)}
+				error={error ? (error.invalid_number ? true : false) : false}
 			/>
+			<HelperText
+				type="error"
+				visible={error ? (error.invalid_number ? true : false) : false}
+			>
+				{error ? (error.invalid_number ? error.invalid_number : "") : ""}
+			</HelperText>
+
 			<TextInput
 				left={<TextInput.Icon name="account" />}
 				label="Enter username"
 				style={{ marginTop: 10 }}
+				maxLength={60}
+				value={name}
+				onChangeText={(nm) => setName(nm)}
 			/>
 
 			<Button
-				onPress={() => props.navigation.navigate("Otp")}
+				onPress={() => submit()}
 				mode="contained"
 				style={styles.button}
 				color={Colors.green600}
+				loading={loading}
+				icon="login"
+				contentStyle={{ flexDirection: "row-reverse" }}
 			>
 				Join
 			</Button>
